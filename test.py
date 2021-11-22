@@ -1,13 +1,17 @@
 import math
+from itertools import combinations
 from typing import List
 from unittest import TestCase, main
 
 from battle import Battle
+from battle_order import BattleOrder
 from buff import MeleeBuff, HealthBuff
 from buff_factory import BuffFactory
 from buff_registry import BuffRegistry
 from card import Card
 from card_bridge import CardBridge
+from deck import Deck
+from target_registry import TargetRegistry
 from util import *
 
 
@@ -37,6 +41,19 @@ def get_alric_deck():
     return CardBridge.collect(card_names)
 
 
+def get_lyanna_deck():
+    card_names = [
+        "Lyanna Natura",
+        "Goblin Sorcerer",
+        "Elven Cutthroat",
+        "Goblin Thief",
+        "Failed Summoner",
+        "Khmer Princess",
+        "Child of the Forest",
+    ]
+    return CardBridge.collect(card_names)
+
+
 class MyTestCase(TestCase):
     def test_cards_ordered_by_speed(self):
         cards = [CardBridge.card(x) for x in range(10)]
@@ -48,37 +65,23 @@ class MyTestCase(TestCase):
             prev_speed = card.speed
 
     def test_no_summoner_battle_card_turns(self):
-        home, visitor = CardBridge.get_home_visitor()
+        random.seed(10)
+        home, visitor = get_pyre_deck(), get_alric_deck()
         expected = [
-            "Spark Pixies",
-            "Serpentine Soldier",
-            "Fire Elemental",
-            "Serpentine Spy",
+            "Serpent of Eld",
+            "Ice Pixie",
             "Cerberus",
-            "Goblin Shaman",
-            "Giant Roc",
-            "Kobold Miner",
+            "Serpentine Spy",
+            "Sabre Shark",
+            "Elven Mystic",
+            "Medusa",
+            "Enchanted Pixie",
             "Fire Beetle",
-            "Kobold Bruiser",
-            "Magma Troll",
-        ]
-        result = get_battle_order(home, visitor)
-
-        for i in range(len(expected)):
-            self.assertEqual(result[i], expected[i])
-
-    def test_collect_card_deck(self):
-        card_names = [
-            "Pyre",
-            "Cerberus",
             "Kobold Miner",
-            "Serpentine Spy",
-            "Goblin Shaman",
             "Goblin Fireballer",
-            "Fire Beetle",
         ]
-        deck = CardBridge.collect(card_names)
-        self.assertListEqual(card_names, [x.name for x in deck])
+        result = [card.name for card in BattleOrder(home, visitor)]
+        self.assertListEqual(expected, result)
 
     def test_rem_buff_on_death(self):
         card = CardBridge.card(1)
@@ -159,36 +162,156 @@ class MyTestCase(TestCase):
         self.assertTrue(any(map(lambda x: id(x) == id(home[0]), home)))
         self.assertFalse(any(map(lambda x: id(x) == id(pyre), home)))
 
-    def test_better_fighter_iter(self):
+    def test_battle_order(self):
         home = get_pyre_deck()
         oppo = get_alric_deck()
-        # for card, enemies in Battle.attack_order(home, oppo):  # if a monster in the queue dies make sure its removed from queue
-        #     Battle.attack(card, enemies)  # if id(card) in home then attack oppo
-        #     # enemy = card.choose_target(enemies) # depends on abilities
-        #     # enemy.take_damage_from(card)
-        #
-        #
-        # for card in Battle.rem_fighters(home):
-        #     Battle.
+        BuffRegistry.instantiate_all(home, oppo)
+        prev_speed = math.inf
+        for card in BattleOrder(home, oppo):
+            self.assertGreaterEqual(prev_speed, card.speed)
+            self.assertGreater(card.health, 0)
+            self.assertGreater(card.dmg, 0)
+            prev_speed = card.speed
 
-    def test_choose_target(self):
-        pass
+    def test_targets(self):
+        # todo: card targets enemy (snipe, opportunity, sneak)
+        # todo: check card order (make sure summoner-monster-monster-...)
+        # todo: mock random for testing (make it play out like actual recorded battle)
+        home = get_pyre_deck()
+        oppo = get_alric_deck()
+        enemy = TargetRegistry.choose_for(home[0], home, oppo)  # melee tank targets first
+        self.assertEqual(enemy.name, 'Serpent of Eld')
 
-    # def test_battling_already(self):
-    #     home = get_pyre_deck()
-    #     oppo = get_alric_deck()
-    #     BuffRegistry.instantiate_all(home, oppo)  # todo: order of buffs matter eg +1 health before -1 health
-    #
-    #     # continue if some card in deck 1 and some card in deck 2 is alive
-    #     while any(card.health > 0 for card in home) and any(card.health > 0 for card in oppo):
-    #         home_fighters = [x for x in home if x.dmg > 0 and x.health > 0]
-    #         oppo_fighters = [x for x in oppo if x.dmg > 0 and x.health > 0]
-    #         fighter = next_card(home_fighters, oppo_fighters)
-    #         try:
-    #             home_fighters.remove(fighter)
-    #         except ValueError:
-    #             oppo_fighters.remove(fighter)
+        enemy = TargetRegistry.choose_for(home[2], home, oppo)  # sneak hits last target
+        self.assertEqual(enemy.name, 'Sabre Shark')
+
+        enemy = TargetRegistry.choose_for(home[3], home, oppo)  # oppo hits weakest
+        self.assertIn(enemy.name, {'Ice Pixie', 'Enchanted Pixie'})
+
+        enemy = TargetRegistry.choose_for(home[-1], home, oppo)  # sneak hits last target
+        self.assertEqual(enemy.name, 'Ice Pixie')
+
+    def test_actual_battle_from_replay(self):
+        # pick = random.randint(1, 10000000) # 7074366
+        score = 0
+        random.seed(50067)
+        order = [
+            ('Child of the Forest', 'Goblin Shaman', True),
+            ('Cerberus', 'Goblin Sorcerer', True),
+            ('Serpentine Spy', 'Elven Cutthroat', True),
+            ('Fire Beetle', 'Failed Summoner', True),
+            ('Kobold Miner', 'Child of the Forest', True),
+            ('Goblin Fireballer', 'Goblin Thief', True),
+            ('Goblin Thief', 'Cerberus', True),
+            ('Khmer Princess', 'Cerberus', True),
+            ('Child of the Forest', 'Goblin Shaman', True),
+            ('Cerberus', 'Goblin Thief', True),
+            ('Serpentine Spy', 'Child of the Forest', True),
+            ('Fire Beetle', 'Khmer Princess', True),
+            ('Kobold Miner', 'Khmer Princess', True),
+            ('Goblin Fireballer', 'Failed Summoner', True),
+            ('Cerberus', 'Failed Summoner', True),
+        ]
+
+        home = get_pyre_deck()
+        oppo = get_lyanna_deck()
+
+        home_bef = [(2, 0, 3, 5), (1, 0, 2, 2), (2, 0, 3, 1), (0, 0, 2, 4), (1, 0, 1, 2), (1, 0, 2, 4)]
+        home_aft = [(2, 0, 4, 5), (1, 0, 3, 2), (2, 0, 4, 1), (0, 0, 3, 4), (1, 0, 2, 2), (1, 0, 3, 4)]
+        oppo_bef = [(1, 0, 2, 2), (1, 0, 3, 1), (2, 0, 2, 3), (0, 0, 2, 4), (1, 0, 1, 2), (1, 0, 5, 2)]
+        oppo_aft = [(1, 0, 2, 2), (1, 0, 3, 1), (2, 0, 2, 3), (0, 0, 2, 4), (1, 0, 1, 2), (1, 0, 5, 2)]
+
+        self.assertListEqual(home_bef, mons_stats(home))
+        self.assertListEqual(oppo_bef, mons_stats(oppo))
+        BuffRegistry.instantiate_all(home, oppo)
+        battle_order = BattleOrder(home, oppo)
+        self.assertListEqual(home_aft, mons_stats(home))
+        self.assertListEqual(oppo_aft, mons_stats(oppo))
+
+        while decks_each_have_an_alive_card(home, oppo):
+            for card in battle_order:
+                allies, enemies = get_allies_enemies(card, home, oppo)
+                enemy = TargetRegistry.choose_for(card, allies, enemies)
+
+                if not enemy:
+                    break
+
+                if not card.can_attack(allies):
+                    continue
+
+                got_hit = enemy.take_damage_from(card)
+                attacker, defender, was_hit = order.pop(0)
+                if attacker == card.name:
+                    score += 1
+                if defender == enemy.name:
+                    score += 1
+                if was_hit == got_hit:
+                    score += 1
+                self.assertFalse(attacker != card.name or defender != enemy.name or was_hit != got_hit)
+
+        self.assertEqual(45, score)
+
+    def test_battle_class(self):
+        home_won = Battle.begin(get_pyre_deck(), get_lyanna_deck())
+        self.assertTrue(home_won)
+
+    def test_deck_class_sort(self):
+        home = Deck(get_alric_deck())
+        oppo = Deck(get_pyre_deck())
+        visitor = Deck(get_lyanna_deck())
+
+        comp = [oppo, home, visitor]
+        comp.sort()
+        self.assertEqual(id(comp[0]), id(visitor))
+        self.assertEqual(id(comp[1]), id(oppo))
+        self.assertEqual(id(comp[2]), id(home))
+
+    def test_sort_deck_list(self):
+        limit = 20
+        element = 'fire'
+        full_viable = self.sort_by_best(element, limit, limit < 20)
+        full_viable.sort()
+        print(full_viable)
+
+
+
+    @classmethod
+    def find_best_in_element(self):
+        limit = 30
+        element = 'fire'
+        tournament_size = 5
+        full_viable = self.sort_by_best(element, limit, limit < 20)
+
+        prev_best = full_viable[:tournament_size]
+        for i, deck in enumerate(full_viable):
+            if all(deck > x for x in prev_best):
+                prev_best.pop(0)
+                prev_best.append(deck)
+                print(f"NEW HIGH SCORE deck #{i}:")
+                print(deck)
+
+        print(prev_best)
+
+    @classmethod
+    def sort_by_best(self, element, limit=20, extended_search=False, summ_cost=3):
+        options = [CardBridge.card(i) for i in CardBridge.df[CardBridge.df.Element == element].index]
+        options.extend(CardBridge.card(i) for i in CardBridge.df[CardBridge.df.Element == 'neutral'].index)
+        monsters = [x for x in options if x.role == Role.MONSTER]
+        summs = [x for x in options if x.role == Role.SUMMONER]
+        combos = list(combinations(monsters, 6))
+        if extended_search:
+            for i in range(4,6):
+                combos.extend(list(combinations(monsters, i)))
+
+        viable = [x for x in combos if mana_cost(list(x)) < limit-summ_cost]
+        full_viable = []
+        for summ in summs:
+            for cards in viable:
+                cards = reposition(cards)
+                cards = [summ] + list(cards)
+                full_viable.append(Deck(cards))
+        return full_viable
 
 
 if __name__ == '__main__':
-    main()
+    MyTestCase.find_best_in_element()

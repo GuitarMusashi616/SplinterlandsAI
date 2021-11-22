@@ -20,7 +20,7 @@ class BuffRegistry:
         'health+': BuffFactory(HealthBuff, 1),
         'health-': BuffFactory(HealthBuff, -1, True),
         'armor+': BuffFactory(ArmorBuff, 1),
-        'armor-': BuffFactory(ArmorBuff, -1, True),
+        'armor--': BuffFactory(ArmorBuff, -2, True),
         'speed+': BuffFactory(SpeedBuff, 1),
         'speed-': BuffFactory(SpeedBuff, -1, True),
     }
@@ -36,6 +36,16 @@ class BuffRegistry:
         return cls.buffs[key]
 
     @classmethod
+    def has_pos_buff(cls, card):
+        for ability in card.abilities:
+            try:
+                factory = cls.lookup(ability)
+                if not factory.is_offensive:
+                    return True
+            except KeyError:
+                continue
+
+    @classmethod
     def from_card(cls, src: Card, allies: List[Card], enemies: List[Card]):
         for ability in src.abilities:
             try:
@@ -46,8 +56,21 @@ class BuffRegistry:
 
     @classmethod
     def instantiate_all(cls, deck1: List[Card], deck2: List[Card]):
+        skipped = []
         for card in deck1:
-            cls.from_card(card, deck1, deck2)
+            if cls.has_pos_buff(card):
+                cls.from_card(card, deck1, deck2)
+            else:
+                skipped.append((card, deck1, deck2))
 
         for card in deck2:
-            cls.from_card(card, deck2, deck1)
+            if cls.has_pos_buff(card):
+                cls.from_card(card, deck2, deck1)
+            else:
+                skipped.append((card, deck2, deck1))
+
+        for card, deck1, deck2 in skipped:
+            cls.from_card(card, deck1, deck2)
+
+
+
