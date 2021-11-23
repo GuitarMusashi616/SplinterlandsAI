@@ -1,14 +1,39 @@
 import random
+from enum import Enum
 
 from battle_order import BattleOrder
 from buff_registry import BuffRegistry
 from target_registry import TargetRegistry
-from util import decks_each_have_an_alive_card, get_allies_enemies, determine_winner
+from util import decks_each_have_an_alive_card, get_allies_enemies
 
+class Result(Enum):
+    WIN = 1
+    LOSE = 2
+    DRAW = 3
+
+    def get_score(self):
+        if self.WIN:
+            return 1
+        elif self.DRAW:
+            return 0.5
+        else:
+            return 0
 
 class Battle:
+    @staticmethod
+    def determine_winner(home, oppo):
+        home_alive = any(card.health > 0 for card in home)
+        oppo_alive = any(card.health > 0 for card in oppo)
+        if home_alive and not oppo_alive:
+            return Result.WIN
+        elif oppo_alive and not home_alive:
+            return Result.LOSE
+        else:
+            return Result.DRAW
+            # raise ValueError(f"Game is not finished or everyone is dead \n{home} \n{oppo}")
+
     @classmethod
-    def begin(cls, home, oppo, seed=None) -> bool:
+    def begin(cls, home, oppo, seed=None) -> Result:
         """True if home victory else False"""
 
         if type(seed) is int:
@@ -32,8 +57,8 @@ class Battle:
                 enemy.take_damage_from(card)
             max_repeat -= 1
 
-        result = determine_winner(home, oppo)
-        if result == "home wins":
-            return True
+        return cls.determine_winner(home, oppo)
+
+
 
 

@@ -1,11 +1,23 @@
 import random
-from typing import List, Tuple
+from itertools import combinations, product
+from typing import List, Tuple, Iterable, Union
 
 import pandas as pd
 
-from enums import Role
+from enums import Role, Element
 from card_bridge import CardBridge
 from card import Card
+
+class HighScore:
+    def __init__(self):
+        self.highest_score = 0
+        self.highest_object = None
+
+    def update_score(self, score, obj=None, verbose=False):
+        if score > self.highest_score:
+            self.highest_score = score
+            if verbose:
+                print(f"NEW HIGH SCORE {score}")
 
 
 # def next_card(deck1: List[Card], deck2: List[Card], enable_random=True) -> Card:
@@ -52,25 +64,15 @@ def mons_stats(cards: List[Card]) -> List[Tuple[int, int, int, int]]:
     return ls
 
 
-def mana_cost(cards: List[Card]) -> int:
+def mana_cost(cards: Iterable[Card]) -> int:
     return sum(card.mana_cost for card in cards)
+
 
 def reset_cards(cards: List[Card]):
     for _ in range(len(cards)):
         front = cards.pop(0)
         fresh = CardBridge.card(front.name)
         cards.append(fresh)
-
-
-def determine_winner(home, oppo):
-    home_alive = any(card.health > 0 for card in home)
-    oppo_alive = any(card.health > 0 for card in oppo)
-    if home_alive and not oppo_alive:
-        return "home wins"
-    elif oppo_alive and not home_alive:
-        return "oppo wins"
-    else:
-        raise ValueError(f"Game is not finished or everyone is dead \n{home} \n{oppo}")
 
 
 def decks_each_have_an_alive_card(home: List[Card], visitor: List[Card]) -> bool:
@@ -106,6 +108,57 @@ def reposition(cards):
     front = sorted([x for x in cards if x.attack_type.value == 2], key=lambda x: x.health, reverse=True)
     back = sorted([x for x in cards if x.attack_type.value != 2], key=lambda x: x.health)
     return front + back
+
+
+# class ComboGen:
+#     def __init__(self, df, group_sizes):
+#         self.df = df
+#         self.group_size = group_sizes
+#
+#     def __iter__(self):
+#         self.i = 0
+#         self.gens = [combinations(self.df.itertuples(), i) for i in self.group_sizes]
+#
+#     def __next__(self):
+#         while not self.gens[self.i]:
+#             self.i += 1
+#             if self.i >= len(self.gens):
+#                 raise StopIteration
+
+
+
+
+
+
+
+
+def generate_combos_of(df, group_sizes: range):
+    """eg range(4,6) -> yields combos of 4 followed by combos of 5"""
+    for i in group_sizes:
+        gen = combinations(df.itertuples(), i)
+        return next(gen)
+
+
+def get_df_cards_of(element):
+    df = CardBridge.df
+
+    df_monsters = df[(df.Role == 'monster') & ((df.Element == element) | (df.Element == 'neutral'))]
+    df_summoners = df[(df.Role == 'summoner') & ((df.Element == element) | (df.Element == 'neutral'))]
+    return df_monsters, df_summoners
+
+
+def filter_mana_cost(choices: Iterable, max_mana: int = 30, mana_within=3):
+    return list(filter(lambda deck: max_mana-mana_within < sum(map(lambda card: card.ManaCost, deck)) < max_mana, choices))
+
+
+def get_deck_combos(element: Element, max_mana: int, mana_within=3):
+    element = element.name.lower()
+    df_monsters, df_summoners = get_df_cards_of(element)
+    choices = combinations(df_monsters.itertuples(), 6)
+    mana_constrained = filter_mana_cost(choices, max_mana, mana_within)
+    full_decks = product(df_summoners.itertuples(), mana_constrained)
+    full_decks_recombined = list(map(lambda x: [x[0]] + list(x[1]), full_decks))
+    return full_decks_recombined
 
 
 if __name__ == "__main__":

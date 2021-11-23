@@ -3,7 +3,7 @@ from itertools import combinations
 from typing import List
 from unittest import TestCase, main
 
-from battle import Battle
+from battle import Battle, Result
 from battle_order import BattleOrder
 from buff import MeleeBuff, HealthBuff
 from buff_factory import BuffFactory
@@ -11,6 +11,7 @@ from buff_registry import BuffRegistry
 from card import Card
 from card_bridge import CardBridge
 from deck import Deck
+from deck_proxy import DeckProxy
 from target_registry import TargetRegistry
 from util import *
 
@@ -269,9 +270,55 @@ class MyTestCase(TestCase):
     def test_sort_deck_list(self):
         limit = 20
         element = 'fire'
-        full_viable = self.sort_by_best(element, limit, limit < 20)
-        full_viable.sort()
-        print(full_viable)
+        # full_viable = self.sort_by_best(element, limit, limit < 20)
+        # full_viable.sort()
+        # print(full_viable)
+
+    # def test_gen_combos(self):
+    #     df_monsters, _ = get_df_cards_of('fire')
+    #     choices = generate_combos_of(df_monsters)
+    #
+    #     choices = [len(x) for x in choices]
+    #
+    #     self.assertEqual(choices[0], 4)
+    #     self.assertEqual(choices[-1], 6)
+
+    @staticmethod
+    def faster_search():
+        decks = get_deck_combos(Element.FIRE, 30)
+        deck_proxies = [DeckProxy(x) for x in decks]
+        prev_best = random.choice(deck_proxies)
+        for i, deck in enumerate(deck_proxies):
+            results = {Result.WIN: 0, Result.DRAW:0, Result.LOSE: 0}
+            while True:
+                results[deck.battle(prev_best)] += 1
+                if results[Result.WIN] >= 2:
+                    prev_best = deck
+                    print(f"NEW HIGH SCORE {i}:")
+                    print(deck)
+                    break
+                elif results[Result.LOSE] >= 2:
+                    break
+
+    @staticmethod
+    def elo_search():
+        decks = [DeckProxy(x) for x in get_deck_combos(Element.FIRE, 28, 3)]
+        weights = [x.elo for x in decks]
+        best_deck = decks[0]
+        for _ in range(10000):
+            deck1, deck2 = random.choices(decks, k=2, weights=weights)
+            deck1.battle(deck2)
+            if deck1.elo > best_deck.elo:
+                best_deck = deck1
+                print(best_deck)
+            if deck2.elo > best_deck.elo:
+                best_deck = deck2
+                print(best_deck)
+
+        decks.sort(key=lambda x:x.elo, reverse=True)
+        for deck in decks:
+            print(deck)
+
 
 
 
@@ -282,11 +329,12 @@ class MyTestCase(TestCase):
         tournament_size = 5
         full_viable = self.sort_by_best(element, limit, limit < 20)
 
-        prev_best = full_viable[:tournament_size]
+        prev_best = random.choice(full_viable)
         for i, deck in enumerate(full_viable):
-            if all(deck > x for x in prev_best):
-                prev_best.pop(0)
-                prev_best.append(deck)
+            if deck < prev_best and deck < prev_best and deck < prev_best:
+                prev_best = deck
+                # prev_best.pop(0)
+                # prev_best.append(deck)
                 print(f"NEW HIGH SCORE deck #{i}:")
                 print(deck)
 
@@ -303,7 +351,7 @@ class MyTestCase(TestCase):
             for i in range(4,6):
                 combos.extend(list(combinations(monsters, i)))
 
-        viable = [x for x in combos if mana_cost(list(x)) < limit-summ_cost]
+        viable = [x for x in combos if mana_cost(x) < limit-summ_cost]
         full_viable = []
         for summ in summs:
             for cards in viable:
@@ -314,4 +362,4 @@ class MyTestCase(TestCase):
 
 
 if __name__ == '__main__':
-    MyTestCase.find_best_in_element()
+    MyTestCase.faster_search()
