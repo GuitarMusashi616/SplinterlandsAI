@@ -8,6 +8,8 @@ from card import Card
 class BuffRegistry:
     alias = {
         'weaken': 'health-',
+        'inspire': 'melee+',
+        'protect': 'armor++',
     }
 
     buffs = {  # applies to whole team
@@ -19,6 +21,7 @@ class BuffRegistry:
         'magic-': BuffFactory(MagicBuff, -1, True),
         'health+': BuffFactory(HealthBuff, 1),
         'health-': BuffFactory(HealthBuff, -1, True),
+        'armor++': BuffFactory(ArmorBuff, 2),
         'armor+': BuffFactory(ArmorBuff, 1),
         'armor--': BuffFactory(ArmorBuff, -2, True),
         'speed+': BuffFactory(SpeedBuff, 1),

@@ -33,13 +33,17 @@ class Battle:
             # raise ValueError(f"Game is not finished or everyone is dead \n{home} \n{oppo}")
 
     @classmethod
-    def begin(cls, home, oppo, seed=None) -> Result:
+    def begin(cls, home, oppo, seed=None, verbose=False, battle_record=None) -> Result:
         """True if home victory else False"""
 
         if type(seed) is int:
             random.seed(seed)
 
+        if battle_record:
+            battle_record.save(home, oppo)
+
         BuffRegistry.instantiate_all(home, oppo)
+
         battle_order = BattleOrder(home, oppo)
         max_repeat = 100
 
@@ -54,7 +58,10 @@ class Battle:
                 if not card.can_attack(allies):
                     continue
 
-                enemy.take_damage_from(card)
+                enemy.take_damage_from(card, verbose)
+
+            if battle_record:
+                battle_record.save(home, oppo)
             max_repeat -= 1
 
         return cls.determine_winner(home, oppo)

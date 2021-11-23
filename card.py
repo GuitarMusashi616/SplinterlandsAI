@@ -1,3 +1,4 @@
+import math
 import random
 from enum import Enum
 
@@ -79,7 +80,7 @@ class Card:
 
     def take_damage_from(self, card, verbose=False)->bool:  # also heals if has heal buff
         if card.health < card.max_health and 'heal' in card.abilities:
-            card.health = min(card.health+2, card.max_health)
+            card.health = min(card.health+max(math.floor(card.max_health/3), 2), card.max_health)  # should move this ability somewhere
 
         if verbose:
             print(f"{card} --[[attacks]]-- {self}")
@@ -89,23 +90,31 @@ class Card:
                 print()
             return False
 
-        self.take_damage(card.dmg, card.attack_type == AttackType.MAGIC)
+        dmg_taken = self.take_damage(card.dmg, card.attack_type == AttackType.MAGIC)
         if verbose:
-            print(f"{self.name} --[[takes {card.dmg} damage]]--: {self}")
+            print(f"{self.name} --[[takes {dmg_taken} damage]]--: {self}")
             print()
         return True
 
-    def take_damage(self, amount, armor_ignored=False):
-        if not armor_ignored and self.armor > 0:
-            self.armor -= amount
-            if self.armor < 0:
-                self.armor = 0
-            return
+    def take_damage(self, amount, is_magic=False) -> int:
+        if is_magic and ('void' in self.abilities):
+            amount = 0 if amount == 1 else math.ceil(amount/2)
+
+        if (not is_magic) and ('shield' in self.abilities):
+            amount = 0 if amount == 1 else math.ceil(amount / 2)
+
+        if not is_magic:
+            if self.armor > 0:
+                self.armor -= amount
+                if self.armor < 0:
+                    self.armor = 0
+                return amount
 
         self.health -= amount
         if self.health <= 0:
             self.health = 0
             self.events.notify(EventType.ON_DEATH, self)
+        return amount
 
     def __repr__(self):
         return f"{self.name} {self.abilities} ({self.attack_type.name}) DMG:{self.dmg} ARM:{self.armor} SPD:{self.speed} HP:{self.health}"

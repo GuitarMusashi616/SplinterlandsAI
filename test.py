@@ -362,4 +362,5 @@ class MyTestCase(TestCase):
 
 
 if __name__ == '__main__':
-    MyTestCase.faster_search()
+    list(map(print, get_pyre_deck()+['']))
+    list(map(print, get_lyanna_deck()+['']))
