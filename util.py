@@ -109,6 +109,8 @@ def reposition(cards):
     back = sorted([x for x in cards if x.attack_type.value != 2], key=lambda x: x.health)
     return front + back
 
+def reposition_df(cards):
+    pass
 
 # class ComboGen:
 #     def __init__(self, df, group_sizes):
@@ -148,7 +150,7 @@ def get_df_cards_of(element):
 
 
 def filter_mana_cost(choices: Iterable, max_mana: int = 30, mana_within=3):
-    return list(filter(lambda deck: max_mana-mana_within < sum(map(lambda card: card.ManaCost, deck)) < max_mana, choices))
+    return list(filter(lambda deck: max_mana-mana_within <= sum(map(lambda card: card.ManaCost, deck)) <= max_mana, choices))
 
 
 def get_deck_combos(element: Element, max_mana: int, mana_within=3):

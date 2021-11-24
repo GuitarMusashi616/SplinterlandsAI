@@ -21,3 +21,9 @@ class Element(Enum):
     DEATH = 5
     DRAGON = 6
     NEUTRAL = 7
+
+
+class Result(Enum):
+    LOSE = 0
+    DRAW = 0.5
+    WIN = 1

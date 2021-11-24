@@ -8,8 +8,11 @@ from util import reposition
 
 
 class DeckProxy:
+    name_to_df_card = {x.Card: x for x in CardBridge.df.itertuples()}
+
     def __init__(self, df_cards):
         self.df_cards = df_cards
+        self.df_cards.sort(key=self.sort_order, reverse=True)
         self.elo = 1000
 
     def __repr__(self):
@@ -20,12 +23,33 @@ class DeckProxy:
         return string + ']'
 
     def instantiate(self) -> List[Card]:
-        return reposition([CardBridge.card_from_row(df_card) for df_card in self.df_cards])
+        return [CardBridge.card_from_row(df_card) for df_card in self.df_cards]
 
-    def battle(self, other) -> Result:
-        result = Battle.begin(self.instantiate(), other.instantiate())
-        self.elo, other.elo = Elo.battle(self.elo, other.elo, result.get_score())
+    def battle(self, other, verbose=False) -> Result:
+        result = Battle.begin(self.instantiate(), other.instantiate(), verbose=verbose)
+        self.elo, other.elo = Elo.battle(self.elo, other.elo, result.value)
         return result
 
     def __gt__(self, other) -> bool:
         return self.battle(other) == Result.WIN
+
+    @staticmethod
+    def sort_order(x):
+        hp = x.Health
+        if x.AttackType != 'melee':
+            hp = -hp
+
+        return x.Role == 'summoner', x.AttackType == 'melee', hp
+
+    @classmethod
+    def from_cards(cls, cards: List[Card]):
+        return cls.from_string([card.name for card in cards])
+
+    @classmethod
+    def from_string(cls, card_names: List[str]):
+        deck = []
+        for name in card_names:
+            deck.append(cls.name_to_df_card[name])
+        return DeckProxy(deck)
+
+

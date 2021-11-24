@@ -5,19 +5,8 @@ from battle_order import BattleOrder
 from buff_registry import BuffRegistry
 from target_registry import TargetRegistry
 from util import decks_each_have_an_alive_card, get_allies_enemies
+from enums import Result
 
-class Result(Enum):
-    WIN = 1
-    LOSE = 2
-    DRAW = 3
-
-    def get_score(self):
-        if self.WIN:
-            return 1
-        elif self.DRAW:
-            return 0.5
-        else:
-            return 0
 
 class Battle:
     @staticmethod

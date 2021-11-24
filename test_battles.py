@@ -1,9 +1,10 @@
 from unittest import TestCase
 
-from battle import Battle
+from battle import Battle, Result
 from battle_record import BattleRecord
 from buff_registry import BuffRegistry
 from card_bridge import CardBridge
+from deck_proxy import DeckProxy
 from test import get_alric_deck, get_pyre_deck
 from util import mons_stats
 
@@ -64,4 +65,40 @@ class BattleTesting(TestCase):
         self.assertEqual("0025 2024 3044 2024 0015 1013", br.round[4])
         self.assertEqual("0025 2024 3041 1013 0015", br.round[5])
         self.assertEqual("0025 2024 3041 0015", br.round[6])
+
+    def test_summoner_first_in_deck_proxy_instantiate(self):
+        pyre = get_pyre_deck()
+        alric = get_alric_deck()
+        dpp = DeckProxy.from_cards(pyre)
+        dpa = DeckProxy.from_cards(alric)
+
+        self.assertEqual(dpp.instantiate()[0].name, "Pyre")
+        self.assertEqual(dpa.instantiate()[0].name, "Alric Stormbringer")
+
+    def test_elo(self):
+        chosen = [
+            'Pyre',
+            'Giant Roc',
+            'Kobold Miner',
+            'Cocatrice',
+            'Goblin Fireballer',
+            'Goblin Shaman',
+            'Fire Beetle',
+        ]
+        classic = DeckProxy.from_cards(get_pyre_deck())
+        chosen = DeckProxy.from_string(chosen)
+        old_elo = chosen.elo
+        result = chosen.battle(classic)
+
+        if result == Result.WIN:
+            self.assertGreater(chosen.elo, old_elo)
+        elif result == Result.DRAW:
+            self.assertEqual(chosen.elo, old_elo)
+        else:
+            self.assertLess(chosen.elo, old_elo)
+
+
+    def test_tourney(self):
+        pass
+
 
