@@ -5,8 +5,8 @@ from battle_record import BattleRecord
 from buff_registry import BuffRegistry
 from card_bridge import CardBridge
 from deck_proxy import DeckProxy
-from test import get_alric_deck, get_pyre_deck
-from util import mons_stats
+from test import get_alric_deck, get_pyre_deck, Element
+from util import mons_stats, get_deck_combos
 
 
 class BattleTesting(TestCase):
@@ -102,3 +102,16 @@ class BattleTesting(TestCase):
         pass
 
 
+if __name__ == "__main__":
+    mana_cost = 16
+    elements_to_search = [Element.FIRE, Element.WATER, Element.EARTH, Element.LIFE, Element.DEATH]
+    group_sizes_to_search = range(1, 7)
+    df_cards = []
+    for i in group_sizes_to_search:
+        for elem in elements_to_search:
+            df_cards += get_deck_combos(elem, mana_cost - 3, 0, group_size=i)
+
+    print(len(df_cards))
+    decks = [DeckProxy(x) for x in df_cards]
+    decks.sort(reverse=True)
+    print(decks)

@@ -285,19 +285,19 @@ class MyTestCase(TestCase):
 
     @staticmethod
     def faster_search():
-        decks = get_deck_combos(Element.FIRE, 30)
+        decks = get_deck_combos(Element.EARTH, 28)
         deck_proxies = [DeckProxy(x) for x in decks]
         prev_best = random.choice(deck_proxies)
         for i, deck in enumerate(deck_proxies):
             results = {Result.WIN: 0, Result.DRAW:0, Result.LOSE: 0}
             while True:
                 results[deck.battle(prev_best)] += 1
-                if results[Result.WIN] >= 2:
+                if results[Result.WIN] >= 5:
                     prev_best = deck
                     print(f"NEW HIGH SCORE {i}:")
                     print(deck)
                     break
-                elif results[Result.LOSE] >= 2:
+                elif results[Result.LOSE] >= 5:
                     break
 
     @staticmethod
@@ -362,5 +362,4 @@ class MyTestCase(TestCase):
 
 
 if __name__ == '__main__':
-    list(map(print, get_pyre_deck()+['']))
-    list(map(print, get_lyanna_deck()+['']))
+    MyTestCase.faster_search()

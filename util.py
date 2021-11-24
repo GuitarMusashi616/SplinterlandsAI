@@ -153,10 +153,10 @@ def filter_mana_cost(choices: Iterable, max_mana: int = 30, mana_within=3):
     return list(filter(lambda deck: max_mana-mana_within <= sum(map(lambda card: card.ManaCost, deck)) <= max_mana, choices))
 
 
-def get_deck_combos(element: Element, max_mana: int, mana_within=3):
+def get_deck_combos(element: Element, max_mana: int, mana_within=3, group_size=6):
     element = element.name.lower()
     df_monsters, df_summoners = get_df_cards_of(element)
-    choices = combinations(df_monsters.itertuples(), 6)
+    choices = combinations(df_monsters.itertuples(), group_size)
     mana_constrained = filter_mana_cost(choices, max_mana, mana_within)
     full_decks = product(df_summoners.itertuples(), mana_constrained)
     full_decks_recombined = list(map(lambda x: [x[0]] + list(x[1]), full_decks))

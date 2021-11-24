@@ -30,6 +30,9 @@ class DeckProxy:
         self.elo, other.elo = Elo.battle(self.elo, other.elo, result.value)
         return result
 
+    # def __lt__(self, other):
+    #     return self.elo < other.elo
+
     def __gt__(self, other) -> bool:
         return self.battle(other) == Result.WIN
 
