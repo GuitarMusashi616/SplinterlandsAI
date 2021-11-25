@@ -78,10 +78,11 @@ class Card:
         # todo: make some way to add the blind buff +15% evade
         return evade_chance
 
-    def take_damage_from(self, card, verbose=False)->bool:  # also heals if has heal buff
-        if card.health < card.max_health and 'heal' in card.abilities:
-            card.health = min(card.health+max(math.floor(card.max_health/3), 2), card.max_health)  # should move this ability somewhere
+    def try_heal(self):
+        if self.health < self.max_health and 'heal' in self.abilities:
+            self.health = min(self.health+max(math.floor(self.max_health/3), 2), self.max_health)  # should move this ability somewhere
 
+    def take_damage_from(self, card, verbose=False)->bool:  # also heals if has heal buff
         if verbose:
             print(f"{card} --[[attacks]]-- {self}")
         if random.random() < self.calc_evade_chance(card):

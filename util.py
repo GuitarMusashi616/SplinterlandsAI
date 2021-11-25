@@ -8,6 +8,7 @@ from enums import Role, Element
 from card_bridge import CardBridge
 from card import Card
 
+
 class HighScore:
     def __init__(self):
         self.highest_score = 0
@@ -161,6 +162,16 @@ def get_deck_combos(element: Element, max_mana: int, mana_within=3, group_size=6
     full_decks = product(df_summoners.itertuples(), mana_constrained)
     full_decks_recombined = list(map(lambda x: [x[0]] + list(x[1]), full_decks))
     return full_decks_recombined
+
+
+def get_deck_combos_of_mana_cost(mana_cost, within_mana=0, elements_to_search=frozenset([Element.FIRE, Element.WATER, Element.EARTH, Element.LIFE, Element.DEATH]), group_sizes_to_search=range(6,7), summ_cost=3):
+    df_cards = []
+    for i in group_sizes_to_search:
+        for elem in elements_to_search:
+            df_cards += get_deck_combos(elem, mana_cost - summ_cost, within_mana, group_size=i)
+
+    print(len(df_cards))
+    return df_cards
 
 
 if __name__ == "__main__":

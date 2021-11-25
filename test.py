@@ -79,6 +79,7 @@ class MyTestCase(TestCase):
             "Enchanted Pixie",
             "Fire Beetle",
             "Kobold Miner",
+            'Goblin Shaman',
             "Goblin Fireballer",
         ]
         result = [card.name for card in BattleOrder(home, visitor)]
@@ -171,7 +172,6 @@ class MyTestCase(TestCase):
         for card in BattleOrder(home, oppo):
             self.assertGreaterEqual(prev_speed, card.speed)
             self.assertGreater(card.health, 0)
-            self.assertGreater(card.dmg, 0)
             prev_speed = card.speed
 
     def test_targets(self):

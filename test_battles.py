@@ -6,7 +6,7 @@ from buff_registry import BuffRegistry
 from card_bridge import CardBridge
 from deck_proxy import DeckProxy
 from test import get_alric_deck, get_pyre_deck, Element
-from util import mons_stats, get_deck_combos
+from util import mons_stats, get_deck_combos, get_deck_combos_of_mana_cost
 
 
 class BattleTesting(TestCase):
@@ -16,7 +16,7 @@ class BattleTesting(TestCase):
         py = get_pyre_deck()
 
         br.save(al, py)
-        self.assertEqual(br.round[0],"1032 1023 1023 1021 1031 3245 2035 1024 1012 0024 2031 1022")
+        self.assertEqual(br.round[0],"1031 1021 1023 1023 1032 3245 2035 1024 1012 0024 2031 1022")
 
     def test_instantiation_inspire_protect(self):
         home = ["Alric Stormbringer", "Frozen Soldier", "Enchanted Pixie", "Ice Pixie", "Medusa"]
@@ -44,10 +44,10 @@ class BattleTesting(TestCase):
         br = BattleRecord()
         Battle.begin(home, oppo, battle_record=br)
 
-        self.assertEqual("1023 1031 1021 2523 3017 0021 1145", br.round[0])
-        self.assertEqual("2023 2031 2021 2323 4015 0222 2346", br.round[1])
-        self.assertEqual("2023 2031 2021 2323 2346 0222", br.round[2])
-        self.assertEqual("2023 2031 2021 2223 0022", br.round[3])
+        self.assertEqual("1021 1031 1023 2523 3017 0021 1145", br.round[0])
+        self.assertEqual("2021 2031 2023 2323 4015 0222 2346", br.round[1])
+        self.assertEqual("2021 2031 2023 2323 2346 0222", br.round[2])
+        self.assertEqual("2021 2031 2023 2223 0022", br.round[3])
 
     def test_taunt_reach_tank_heal_battle(self):
         home = ["Lyanna Natura", "Unicorn Mustang", "Goblin Thief", "Failed Summoner"]
@@ -56,7 +56,7 @@ class BattleTesting(TestCase):
         oppo = CardBridge.collect(oppo)
 
         br = BattleRecord()
-        Battle.begin(home, oppo, verbose=True, battle_record=br)
+        Battle.begin(home, oppo, battle_record=br)
 
         self.assertEqual("0024 2023 304a 2429 0014 1012", br.round[0])
         self.assertEqual("0025 2024 3049 202a 0015 1013", br.round[1])
@@ -65,6 +65,23 @@ class BattleTesting(TestCase):
         self.assertEqual("0025 2024 3044 2024 0015 1013", br.round[4])
         self.assertEqual("0025 2024 3041 1013 0015", br.round[5])
         self.assertEqual("0025 2024 3041 0015", br.round[6])
+
+    def test_heal_when_not_attacking(self):
+        home = ["Pyre", "Living Lava", "Cerberus", "Elven Defender"]
+        oppo = ["Zintar Mortalis", "Haunted Spirit", "Skeleton Assassin", "Elven Cutthroat", "Undead Badger", "Undead Priest", "Centaur"]
+        home = CardBridge.collect(home)
+        oppo = CardBridge.collect(oppo)
+
+        br = BattleRecord()
+        Battle.begin(home, oppo, verbose=False, battle_record=br)
+
+        self.assertEqual("2035 2328 3216 2027 1034 0013 1031 1031 1042", br.round[0])
+        self.assertEqual("1044 1037 2125 2025 1034 0013 1031 1031 1042", br.round[1])
+        self.assertEqual("1044 1034 2025 2025 1034 0013 1031 1031 1042", br.round[2])
+        self.assertEqual("1044 1031 2024 2025 1034 0013 1031 1031 1042", br.round[3])
+        self.assertEqual("1043 2023 2025 1034 0013 1031 1031 1042", br.round[4])
+        self.assertEqual("1043 2022 2025 1034 0013 1031 1031 1042", br.round[5])
+        self.assertEqual("1043 2021 2025 1034 0013 1031 1031 1042", br.round[6])
 
     def test_summoner_first_in_deck_proxy_instantiate(self):
         pyre = get_pyre_deck()
@@ -97,21 +114,24 @@ class BattleTesting(TestCase):
         else:
             self.assertLess(chosen.elo, old_elo)
 
+    def test_blast(self):
+        pass
 
     def test_tourney(self):
         pass
 
 
 if __name__ == "__main__":
-    mana_cost = 16
-    elements_to_search = [Element.FIRE, Element.WATER, Element.EARTH, Element.LIFE, Element.DEATH]
-    group_sizes_to_search = range(1, 7)
-    df_cards = []
-    for i in group_sizes_to_search:
-        for elem in elements_to_search:
-            df_cards += get_deck_combos(elem, mana_cost - 3, 0, group_size=i)
-
-    print(len(df_cards))
-    decks = [DeckProxy(x) for x in df_cards]
-    decks.sort(reverse=True)
-    print(decks)
+    test = BattleTesting()
+    for i in range(1000):
+        try:
+            test.test_heal_when_not_attacking()
+            print("DIDNT FAIL")
+        except AssertionError:
+            ...
+            # print("FAILED")
+    #decks = [DeckProxy(x) for x in get_deck_combos_of_mana_cost(16)]
+    #decks.sort(reverse=True)
+    # todo: melee/none can heal even when they dont attack
+    # todo: test blast, retaliate, magic reflect, dodge/flying, stun
+    # print(decks)

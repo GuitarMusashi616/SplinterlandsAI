@@ -4,7 +4,6 @@ from battle import Battle, Result
 from card import Card
 from card_bridge import CardBridge
 from elo import Elo
-from util import reposition
 
 
 class DeckProxy:
@@ -43,6 +42,10 @@ class DeckProxy:
             hp = -hp
 
         return x.Role == 'summoner', x.AttackType == 'melee', hp
+
+    @classmethod
+    def collect(cls, cards: List[str]):
+        return cls.from_string(cards)
 
     @classmethod
     def from_cards(cls, cards: List[Card]):

@@ -34,12 +34,16 @@ class Battle:
         BuffRegistry.instantiate_all(home, oppo)
 
         battle_order = BattleOrder(home, oppo)
-        max_repeat = 100
+        MAX_REPEAT = 100
+        repeats = MAX_REPEAT
 
-        while decks_each_have_an_alive_card(home, oppo) and max_repeat>0:
+        while decks_each_have_an_alive_card(home, oppo) and repeats>0:
+            if verbose:
+                print(f"START OF ROUND {MAX_REPEAT+1-repeats}\n")
             for card in battle_order:
                 allies, enemies = get_allies_enemies(card, home, oppo)
                 enemy = TargetRegistry.choose_for(card, allies, enemies)
+                card.try_heal()
 
                 if not enemy:
                     continue
@@ -51,7 +55,8 @@ class Battle:
 
             if battle_record:
                 battle_record.save(home, oppo)
-            max_repeat -= 1
+            repeats -= 1
+
 
         return cls.determine_winner(home, oppo)
 

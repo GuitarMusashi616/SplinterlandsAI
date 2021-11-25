@@ -19,7 +19,7 @@ class BattleOrder:
             raise StopIteration
 
         candidate = self.all_cards.pop(0)
-        while candidate.health < 1 or candidate.dmg < 1:  # if card is dead, a summoner, or does no dmg, skip
+        while candidate.health < 1:  # if card is dead or a summoner, skip
             if not self.all_cards:
                 raise StopIteration
             candidate = self.all_cards.pop(0)

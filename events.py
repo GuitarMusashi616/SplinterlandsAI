@@ -4,6 +4,7 @@ from enum import Enum
 
 class EventType(Enum):
     ON_DEATH = 1
+    ON_HIT = 2
 
 
 class EventListener(ABC):

@@ -53,19 +53,23 @@ class StatBuff(BuffExpiresOnDeath, EventListener):
         return 1
 
     def apply(self):
+        self.change_attrib(self.card_attrib_to_modify(), self.delta)
+
+    def remove(self):
+        self.change_attrib(self.card_attrib_to_modify(), self.delta)
+
+    def change_attrib(self, key, amount):
         if self.card.role is Role.MONSTER and self.should_apply():
-            key = self.card_attrib_to_modify()
             min_val = self.attrib_min_val()
             if self.delta < 0 and self.card.__dict__[key] <= min_val:
                 #  dont make the health go down if its already at <= 1, will kill cards instead of debuffing them
                 return
-            self.card.__dict__[key] += self.delta
+            self.card.__dict__[key] += amount
             self.has_been_applied = True
 
-    def remove(self):
+    def remove_attrib(self, key, amount):
         if self.has_been_applied:
-            key = self.card_attrib_to_modify()
-            self.card.__dict__[key] -= self.delta
+            self.card.__dict__[key] -= amount
             self.has_been_applied = False
 
 
@@ -79,7 +83,7 @@ class AttackBuff(StatBuff):
 
 
 class FlatBuff(StatBuff):
-    @abstractmethod
+
     def card_attrib_to_modify(self) -> str:
         ...
 
@@ -103,8 +107,13 @@ class MagicBuff(AttackBuff):
 
 
 class HealthBuff(FlatBuff):
-    def card_attrib_to_modify(self) -> str:
-        return 'health'
+    def apply(self):
+        self.change_attrib('health', self.delta)
+        self.change_attrib('max_health', self.delta)
+
+    def remove(self):
+        self.change_attrib('health', self.delta)
+        self.change_attrib('max_health', self.delta)
 
 
 class ArmorBuff(FlatBuff):
