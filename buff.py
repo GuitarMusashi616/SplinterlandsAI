@@ -56,7 +56,7 @@ class StatBuff(BuffExpiresOnDeath, EventListener):
         self.change_attrib(self.card_attrib_to_modify(), self.delta)
 
     def remove(self):
-        self.change_attrib(self.card_attrib_to_modify(), self.delta)
+        self.remove_attrib(self.card_attrib_to_modify(), self.delta)
 
     def change_attrib(self, key, amount):
         if self.card.role is Role.MONSTER and self.should_apply():
@@ -112,8 +112,8 @@ class HealthBuff(FlatBuff):
         self.change_attrib('max_health', self.delta)
 
     def remove(self):
-        self.change_attrib('health', self.delta)
-        self.change_attrib('max_health', self.delta)
+        self.remove_attrib('health', self.delta)
+        self.remove_attrib('max_health', self.delta)
 
 
 class ArmorBuff(FlatBuff):
@@ -129,3 +129,16 @@ class ArmorBuff(FlatBuff):
 class SpeedBuff(FlatBuff):
     def card_attrib_to_modify(self) -> str:
         return 'speed'
+
+
+class TauntBuff(BuffExpiresOnDeath):
+    def __init__(self, delta: int, card: Card, rem_on_death: Card):
+        self.rem_on_death = rem_on_death
+        super().__init__(delta, card, rem_on_death)
+
+    def apply(self):
+        self.card.taunt = self.rem_on_death
+
+    def remove(self):
+        if self.has_been_applied:
+            self.card.taunt = None

@@ -20,6 +20,7 @@ class Card:
         self.armor = armor
         self.abilities = set(abilities)
         self._events = EventManager()
+        self.taunt = None
 
     @property
     def events(self):
@@ -78,11 +79,29 @@ class Card:
         # todo: make some way to add the blind buff +15% evade
         return evade_chance
 
-    def try_heal(self):
-        if self.health < self.max_health and 'heal' in self.abilities:
-            self.health = min(self.health+max(math.floor(self.max_health/3), 2), self.max_health)  # should move this ability somewhere
+    def try_heal(self, allies, verbose=False):
+        target = None
+        if 'tank heal' in self.abilities:
+            for card in allies:
+                if card.health > 0:
+                    target = card
+                    break
 
-    def take_damage_from(self, card, verbose=False)->bool:  # also heals if has heal buff
+        if 'heal' in self.abilities:
+            target = self
+
+        if not target:
+            return
+
+        if target.health < target.max_health:
+            target.health = min(target.health+max(math.floor(target.max_health/3), 2), target.max_health)
+            if verbose:
+                print(f"{target.name} healed by {self.name} --> {target}")
+
+    def take_damage_from(self, card, verbose=False)->bool:
+        if self.taunt is not None and self.taunt is not self:
+            return self.taunt.take_damage_from(card, verbose)
+
         if verbose:
             print(f"{card} --[[attacks]]-- {self}")
         if random.random() < self.calc_evade_chance(card):

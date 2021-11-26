@@ -43,7 +43,7 @@ class Battle:
             for card in battle_order:
                 allies, enemies = get_allies_enemies(card, home, oppo)
                 enemy = TargetRegistry.choose_for(card, allies, enemies)
-                card.try_heal()
+                card.try_heal(allies, verbose)
 
                 if not enemy:
                     continue

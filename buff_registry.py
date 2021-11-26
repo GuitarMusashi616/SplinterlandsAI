@@ -1,6 +1,6 @@
 from typing import Union, Tuple, List
 
-from buff import MeleeBuff, Buff, HealthBuff, RangedBuff, MagicBuff, ArmorBuff, SpeedBuff
+from buff import MeleeBuff, Buff, HealthBuff, RangedBuff, MagicBuff, ArmorBuff, SpeedBuff, TauntBuff
 from buff_factory import BuffFactory
 from card import Card
 
@@ -26,6 +26,7 @@ class BuffRegistry:
         'armor--': BuffFactory(ArmorBuff, -2, True),
         'speed+': BuffFactory(SpeedBuff, 1),
         'speed-': BuffFactory(SpeedBuff, -1, True),
+        'taunt': BuffFactory(TauntBuff, 0),
     }
 
     @classmethod
