@@ -9,6 +9,18 @@ from enums import Result
 
 
 class Battle:
+    battle_count = 0
+
+    @classmethod
+    def reset_count(cls):
+        cls.battle_count = 0
+
+    @classmethod
+    def inc_count(cls):
+        cls.battle_count += 1
+        if cls.battle_count%10000 == 0:
+            print(f"# of Battles: {cls.battle_count}")
+
     @staticmethod
     def determine_winner(home, oppo):
         home_alive = any(card.health > 0 for card in home)
@@ -24,6 +36,7 @@ class Battle:
     @classmethod
     def begin(cls, home, oppo, seed=None, verbose=False, battle_record=None) -> Result:
         """True if home victory else False"""
+        cls.inc_count()
 
         if type(seed) is int:
             random.seed(seed)

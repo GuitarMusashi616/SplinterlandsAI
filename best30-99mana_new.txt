@@ -1,0 +1,72 @@
+1402928
+Time to start
+drake, shield, elven def, lum eagl, mantoid, boatman, chariot
+
+[ELO: 1070.4867374997186 [
+	Mother Khala
+	Shieldbearer
+	Elven Defender
+	Silvershield Warrior
+	Elven Cutthroat
+	Tower Griffin
+	Peacebringer
+], ELO: 1055.267623097721 [
+	Mother Khala
+	Shieldbearer
+	Elven Defender
+	Silvershield Warrior
+	Elven Cutthroat
+	Truthspeaker
+	Tower Griffin
+], ELO: 1061.4621148967321 [
+	Mother Khala
+	Shieldbearer
+	Elven Defender
+	Luminous Eagle
+	Silvershield Warrior
+	Elven Cutthroat
+	Tower Griffin
+], ELO: 1068.9982945128384 [
+	Mother Khala
+	Shieldbearer
+	Elven Defender
+	Crystal Jaguar
+	Silvershield Warrior
+	Elven Cutthroat
+	Tower Griffin
+], ELO: 1054.9523539981801 [
+	Mother Khala
+	Shieldbearer
+	Elven Defender
+	Silvershield Paladin
+	Silvershield Warrior
+	Elven Cutthroat
+	Tower Griffin
+], ELO: 1071.6297565692576 [
+	Mother Khala
+	Shieldbearer
+	Elven Defender
+	Cave Slug
+	Silvershield Warrior
+	Elven Cutthroat
+	Tower Griffin
+], ELO: 1071.644250852597 [
+	Mother Khala
+	Shieldbearer
+	Elven Defender
+	Silvershield Knight
+	Elven Cutthroat
+	Herbalist
+	Tower Griffin
+], ELO: 1061.7660623473457 [
+	Mother Khala
+	Shieldbearer
+	Elven Defender
+	Clay Golem
+	Silvershield Warrior
+	Elven Cutthroat
+	Tower Griffin
+]]
+1131.331946849823
+
+Process finished with exit code 0

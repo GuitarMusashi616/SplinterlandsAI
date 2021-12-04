@@ -9,6 +9,7 @@ class CardBridge:
     """Wraps a DataFrame of card records, returns Card instances"""
     dic = {
         np.nan: AttackType.NONE,
+        'none':AttackType.NONE,
         'melee': AttackType.MELEE,
         'ranged': AttackType.RANGED,
         'magic': AttackType.MAGIC,

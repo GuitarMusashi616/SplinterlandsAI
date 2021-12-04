@@ -1,0 +1,59 @@
+E:\AnacondaDONT\pythonw.exe C:/Users/Owner/PycharmProjects/SplinterlandsAI/try_multiprocess.py
+72640
+Time to start
+[ELO: 1194.6894105976926 [
+	Tyrus Paladium
+	Shieldbearer
+	Cocatrice
+	Herbalist
+	Elven Mystic
+], ELO: 1179.0205215760159 [
+	Mother Khala
+	Shieldbearer
+	Horny Toad
+	Enchanted Pixie
+	Herbalist
+], ELO: 1179.9779815546085 [
+	Mother Khala
+	Shieldbearer
+	Feral Spirit
+	Enchanted Pixie
+	Herbalist
+], ELO: 1214.6967863063592 [
+	Mother Khala
+	Shieldbearer
+	Cocatrice
+	Herbalist
+	Elven Mystic
+], ELO: 1174.2943043312741 [
+	Contessa L'ament
+	Haunted Spirit
+	Maggots
+	Undead Badger
+	Undead Priest
+	Twisted Jester
+], ELO: 1199.2823533969513 [
+	Contessa L'ament
+	Haunted Spirit
+	Undead Badger
+	Haunted Spider
+	Undead Priest
+	Twisted Jester
+], ELO: 1156.0496110652775 [
+	Zintar Mortalis
+	Haunted Spirit
+	Cursed Slimeball
+	Undead Badger
+	Centaur
+	Twisted Jester
+], ELO: 1134.6961386672278 [
+	Zintar Mortalis
+	Haunted Spirit
+	Skeleton Assassin
+	Undead Badger
+	Undead Priest
+	Twisted Jester
+]]
+24.993579626083374
+
+Process finished with exit code 0

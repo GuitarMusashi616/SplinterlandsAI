@@ -153,13 +153,19 @@ def get_df_cards_of(element):
 def filter_mana_cost(choices: Iterable, max_mana: int = 30, mana_within=3):
     return list(filter(lambda deck: max_mana-mana_within <= sum(map(lambda card: card.ManaCost, deck)) <= max_mana, choices))
 
+def get_df_iter(df):
+    return df.itertuples()
+
+def get_df_iter_alt(df):
+    return filter(lambda x: x[1], df.iterrows())
+
 
 def get_deck_combos(element: Element, max_mana: int, mana_within=3, group_size=6):
     element = element.name.lower()
     df_monsters, df_summoners = get_df_cards_of(element)
-    choices = combinations(df_monsters.itertuples(), group_size)
+    choices = combinations(get_df_iter(df_monsters), group_size)
     mana_constrained = filter_mana_cost(choices, max_mana, mana_within)
-    full_decks = product(df_summoners.itertuples(), mana_constrained)
+    full_decks = product(get_df_iter(df_summoners), mana_constrained)
     full_decks_recombined = list(map(lambda x: [x[0]] + list(x[1]), full_decks))
     return full_decks_recombined
 
@@ -170,7 +176,7 @@ def get_deck_combos_of_mana_cost(mana_cost, within_mana=0, elements_to_search=fr
         for elem in elements_to_search:
             df_cards += get_deck_combos(elem, mana_cost - summ_cost, within_mana, group_size=i)
 
-    print(len(df_cards))
+    print(f"{len(df_cards)} combinations")
     return df_cards
 
 

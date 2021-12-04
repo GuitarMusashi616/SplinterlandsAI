@@ -1,0 +1,70 @@
+352612
+Time to start
+[ELO: 1170.9354006903757 [
+	Mother Khala
+	Shieldbearer
+	Crystal Jaguar
+	Feral Spirit
+	Enchanted Pixie
+	Herbalist
+	Divine Healer
+], ELO: 1132.1967220780648 [
+	Mother Khala
+	Shieldbearer
+	Silvershield Warrior
+	Cocatrice
+	Feral Spirit
+	Herbalist
+	Peacebringer
+], ELO: 1173.257557691547 [
+	Mother Khala
+	Shieldbearer
+	Horny Toad
+	Parasitic Growth
+	Cocatrice
+	Herbalist
+	Elven Mystic
+], ELO: 1143.8361711574482 [
+	Mother Khala
+	Shieldbearer
+	Feral Spirit
+	Truthspeaker
+	Herbalist
+	Elven Mystic
+	Divine Healer
+], ELO: 1134.9188663494504 [
+	Mother Khala
+	Shieldbearer
+	Crystal Jaguar
+	Cocatrice
+	Feral Spirit
+	Herbalist
+	Peacebringer
+], ELO: 1171.1088241908465 [
+	Mother Khala
+	Shieldbearer
+	Silvershield Warrior
+	Feral Spirit
+	Enchanted Pixie
+	Truthspeaker
+	Herbalist
+], ELO: 1169.1443420218573 [
+	Mother Khala
+	Shieldbearer
+	Cocatrice
+	Feral Spirit
+	Enchanted Pixie
+	Elven Mystic
+	Divine Healer
+], ELO: 1162.4261993435243 [
+	Mother Khala
+	Shieldbearer
+	Cocatrice
+	Feral Spirit
+	Truthspeaker
+	Divine Healer
+	Peacebringer
+]]
+161.0844213962555
+
+Process finished with exit code 0
